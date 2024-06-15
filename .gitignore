@@ -8,3 +8,5 @@ PythonVersion/libs/__pycache__/*
 PythonVersion/runs/*
 .vscode/settings.json
 data/savedModels/bestModel.txt
+.idea/
+stockfish/
