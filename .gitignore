@@ -10,3 +10,6 @@ PythonVersion/runs/*
 data/savedModels/bestModel.txt
 .idea/
 stockfish/
+JupyterNotebook/runs
+JupyterNotebook/.ipynb_checkpoints
+PythonVersion/__pycache__
