@@ -374,14 +374,14 @@ def _decodeUnderPromotion(action):
     #: array.
     _TYPE_OFFSET: int = 64
 
-    #: Set of possibel directions for an underpromotion, encoded as file delta.
+    #: Set of possible directions for an underpromotion, encoded as file delta.
     _DIRECTIONS = utils.IndexedTuple(
         -1,
         0,
         +1,
     )
 
-    #: Set of possibel piece types for an underpromotion (promoting to a queen
+    #: Set of possible piece types for an underpromotion (promoting to a queen
     #: is implicitly encoded by the corresponding queen move).
     _PROMOTIONS = utils.IndexedTuple(
         chess.KNIGHT,
