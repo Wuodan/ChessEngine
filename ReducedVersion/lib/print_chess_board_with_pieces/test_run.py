@@ -2,9 +2,9 @@ from print_chess_board_with_pieces import print_chess_board_with_pieces
 import chess
 import time
 
-
 # Create a new board
 board = chess.Board()
+
 
 # Function to update the board with a move
 def update_board(_board, _move):
@@ -13,6 +13,7 @@ def update_board(_board, _move):
 		print_chess_board_with_pieces(_board)
 	else:
 		print("Illegal move!")
+
 
 # Print the initial board
 print_chess_board_with_pieces(board)

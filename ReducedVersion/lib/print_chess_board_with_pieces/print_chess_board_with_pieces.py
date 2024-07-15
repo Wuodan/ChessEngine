@@ -6,6 +6,7 @@ def clear_console():
 	# Clear the console screen based on the operating system
 	os.system('cls' if os.name == 'nt' else 'clear')
 
+
 def print_chess_board_with_pieces(board):
 	pieces = {
 		'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',

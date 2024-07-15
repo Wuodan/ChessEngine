@@ -77,8 +77,7 @@ def save_best_model(vloss: float, path: str, output_folder: str):
 	print("NEW BEST MODEL FOUND WITH LOSS:", vloss)
 
 
-def run_training(moves_and_positions: MovesAndPositions,
-				 output_folder: str,
+def run_training(moves_and_positions: MovesAndPositions, output_folder: str,
 				 epochs=500, learning_rate=0.001, momentum=0.9):
 	best_loss = 10000000
 	epoch_number = 0

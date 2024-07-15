@@ -199,7 +199,7 @@ def encode_moves_and_positions(parsed_games: [[ParsedGame]]) -> MovesAndPosition
 	board = chess.Board()  # this is used to change whose turn it is so that the encoding works
 
 	for i_game in range(len(parsed_games)):
-	# for game in parsed_games:
+		# for game in parsed_games:
 		game = parsed_games[i_game]
 		board.reset()
 		for i_move in range(len(game.moves)):
