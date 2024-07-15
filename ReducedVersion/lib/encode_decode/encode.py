@@ -2,6 +2,9 @@ import numpy as np
 import chess
 from gym_chess.alphazero.move_encoding import utils
 
+from ReducedVersion.lib.MovesAndPositions import MovesAndPositions
+from ReducedVersion.lib.ParsedGame import ParsedGame
+
 
 # fixing encoding funcs from openai
 
@@ -187,3 +190,27 @@ def encode_board(board: chess.Board) -> np.array:
 def encode_board_from_fen(fen: str) -> np.array:
 	board = chess.Board(fen)
 	return encode_board(board)
+
+
+def encode_moves_and_positions(parsed_games: [[ParsedGame]]) -> MovesAndPositions:
+	all_moves = []
+	all_positions = []
+
+	board = chess.Board()  # this is used to change whose turn it is so that the encoding works
+
+	for i_game in range(len(parsed_games)):
+	# for game in parsed_games:
+		game = parsed_games[i_game]
+		board.reset()
+		for i_move in range(len(game.moves)):
+			move = game.moves[i_move]
+			fen_position = game.positions[i_move]
+			encoded_move = encode_move(move, board)
+			encoded_position = encode_board_from_fen(fen_position)
+
+			all_moves.append(encoded_move)
+			all_positions.append(encoded_position)
+
+			board.turn = (not board.turn)
+
+	return MovesAndPositions(all_moves, all_positions)
