@@ -28,6 +28,8 @@ class Model(torch.nn.Module):
 		self.linear5 = torch.nn.Linear(200, self.OUTPUT_SIZE)
 		self.softmax = torch.nn.Softmax(1)  # use softmax as prob for each move, dim 1 as dim 0 is the batch dimension
 
+		self.random_number_generator = np.random.default_rng()
+
 	def forward(self, x):  # x.shape = (batch size, 896)
 		x = x.to(torch.float32)
 		# x = self.cnn1(x) # for using CNNs
@@ -56,6 +58,9 @@ class Model(torch.nn.Module):
 
 			probs = probs.numpy()[0]  # do not want tensor anymore, 0 since it is a 2d array with 1 row
 
+			legal_moves = board.legal_moves
+			self.print_legal_moves(legal_moves)
+
 			# verify that move is legal and can be decoded before returning
 			while len(probs) > 0:  # try max 100 times, if not throw an error
 				move_idx = probs.argmax()
@@ -65,21 +70,41 @@ class Model(torch.nn.Module):
 						probs = np.delete(probs, move_idx)
 						continue
 					move = chess.Move.from_uci(str(uci_move))
-					if move in board.legal_moves:  # if legal, return, else: loop continues after deleting the move
+					if move in legal_moves:  # if legal, return, else: loop continues after deleting the move
+						self.print_move(legal_moves, move, "Got legal move from model: ")
 						return move
+				except IndexError as ie:
+					print(f"IndexError with index {move_idx} and move {move}: {ie}")
+					# todo remove debug
+					# uci_move = decode_move(move_idx, board)
+					# move = chess.Move.from_uci(str(uci_move))
+					# print(f"uci_move={uci_move}")
+					# self.print_move(legal_moves, uci_move, "uci_move=")
+					pass
 				except Exception as e:
-					print(f"something seriously went wrong: {e}")
+					print(f"something seriously went wrong with index {move_idx} and move {move}: {e}")
 					pass
 				# remove the move, so it's not chosen again next iteration
 				# TODO probably better way to do this, but it is not too time critical as it is only for predictions
 				probs = np.delete(probs, move_idx)
 
 			# return random move if model failed to find move
-			moves = board.legal_moves
-			if moves.count() > 0:
-				print(f"Returning one of {moves.count()} moves")
-				return np.random.choice(np.array(list(moves)))
+			if legal_moves.count() > 0:
+				move = self.random_number_generator.choice(np.array(list(legal_moves)))
+				self.print_move(legal_moves, move, "Returning random move: ")
+				return move
+
 			print("Your predict function could not find any legal/decodable moves")
 			# if no legal moves found, return None
 			# TODO raise Exception("Your predict function could not find any legal/decodable moves")
 			return None
+
+	@staticmethod
+	def print_legal_moves(legal_moves: chess.LegalMoveGenerator):
+		sans = ", ".join(legal_moves.board.lan(move) for move in legal_moves)
+		print(f"Legal moves are:\n<LegalMoveGenerator at {id(legal_moves):#x} ({sans})>")
+
+	@staticmethod
+	def print_move(legal_moves: chess.LegalMoveGenerator, move: chess.Move, prefix=""):
+		sans = legal_moves.board.lan(move)
+		print(f"{prefix}{sans}")

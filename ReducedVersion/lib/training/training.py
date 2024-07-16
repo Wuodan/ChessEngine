@@ -2,7 +2,6 @@ from datetime import datetime
 
 import numpy as np
 import torch
-import tqdm
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 

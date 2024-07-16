@@ -10,7 +10,7 @@ def pgn_to_moves_and_positions(pgn_file: str) -> [ParsedGame]:
 		positions = []
 		while True:
 			game = chess.pgn.read_game(pgn)
-			print(f"{len(parsed_games)}: game = {game}")
+
 			if game is None:
 				break
 
@@ -23,7 +23,6 @@ def pgn_to_moves_and_positions(pgn_file: str) -> [ParsedGame]:
 
 			assert len(moves) == len(positions), "Moves and positions of a game must be of same length"
 			parsed_game = ParsedGame(moves, positions)
-			print(f"parsed_game = {parsed_game}")
 			parsed_games.append(parsed_game)
 
 	return parsed_games
