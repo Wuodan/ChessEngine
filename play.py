@@ -39,16 +39,16 @@ def get_model(output_folder: str) -> Model:
 	return model
 
 
-def init_stockfish(stockfish_path: str) -> Stockfish:
+def init_stockfish() -> Stockfish:
 	elo = int(input("Please enter an integer of elo you want to play against (100):").strip() or "100")
-	stockfish = Stockfish(path=stockfish_path)
+	stockfish = Stockfish()
 	stockfish.reset_engine_parameters()
 	stockfish.set_elo_rating(elo)
 	stockfish.set_skill_level(0)
 	return stockfish
 
 
-def end_game(board: chess.Board) -> GameState:
+def get_game_state(board: chess.Board) -> GameState:
 	game_state = check_game_state(board)
 	logging.info(f"Found no legal move, game-state is {game_state}")
 	if not game_state.is_game_ongoing():
@@ -64,11 +64,10 @@ def print_pgn(board: chess.Board) -> None:
 
 def main() -> None:
 	output_folder = 'data/savedModels'
-	stockfish_path = r"stockfish/stockfish-windows-x86-64-avx2.exe"
 	max_number_of_moves = 150
 
 	model = get_model(output_folder)
-	stockfish = init_stockfish(stockfish_path)
+	stockfish = init_stockfish()
 
 	board = chess.Board()
 
@@ -101,7 +100,7 @@ def main() -> None:
 
 		print_pgn(board)
 
-	game_state = end_game(board)
+	game_state = get_game_state(board)
 	logging.info(f"Game ended with {game_state}")
 
 	print_pgn(board)
