@@ -1,12 +1,15 @@
+import logging
 from pathlib import Path
 
 import chess
 import torch
 from chess import pgn
-from stockfish import Stockfish
 
 from lib.check_game_state.check_game_state import check_game_state, GameState
 from lib.model.Model import Model
+from stockfish import Stockfish
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S.%f')
 
 
 def read_best_model_file(best_model_path: str) -> str | None:
@@ -15,7 +18,7 @@ def read_best_model_file(best_model_path: str) -> str | None:
 		loss = file.readline()
 		model_path = file.readline()
 		file.close()
-		print(f"Found model at path {model_path} with loss {loss}")
+		logging.info(f"Found model at path {model_path} with loss {loss}")
 		return model_path
 	return None
 
@@ -47,7 +50,7 @@ def init_stockfish(stockfish_path: str) -> Stockfish:
 
 def end_game(board: chess.Board) -> GameState:
 	game_state = check_game_state(board)
-	print(f"Found no legal move, game-state is {game_state}")
+	logging.info(f"Found no legal move, game-state is {game_state}")
 	if not game_state.is_game_ongoing():
 		return game_state
 
@@ -86,15 +89,15 @@ def main() -> chess.Board:
 		stockfish.make_moves_from_current_position([stockfish_move.uci()])
 		board.push(stockfish_move)
 
-
-if __name__ == "__main__":
-	board = main()
-
 	game_state = end_game(board)
-	print(f"Game ended with {game_state}")
+	logging.info(f"Game ended with {game_state}")
 
 	game = pgn.Game.from_board(board)
 	exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
 	pgn_string = game.accept(exporter)
 
-	print(f"PGN is:\n{pgn_string}")
+	logging.info(f"PGN is:\n{pgn_string}")
+
+
+if __name__ == "__main__":
+	main()

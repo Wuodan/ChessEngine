@@ -1,9 +1,13 @@
+import logging
+
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 
 from lib.MovesAndPositions import MovesAndPositions
 from lib.model.Model import Model
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S.%f')
 
 
 def get_device() -> torch.device:
@@ -58,7 +62,7 @@ def train_one_epoch(
 		if i % 1000 == 999:
 			# loss per batch
 			last_loss = running_loss / 1000
-			# print('  batch {} loss: {}'.format(i + 1, last_loss))
+			# logging.info('  batch {} loss: {}'.format(i + 1, last_loss))
 			running_loss = 0.
 
 	return last_loss
@@ -70,7 +74,7 @@ def save_best_model(vloss: float, path: str, output_folder: str) -> None:
 	f.write("\n")
 	f.write(path)
 	f.close()
-	print("NEW BEST MODEL FOUND WITH LOSS:", vloss)
+	logging.info(f"NEW BEST MODEL FOUND WITH LOSS: {vloss}")
 
 
 def run_training(moves_and_positions: MovesAndPositions, output_folder: str,
@@ -123,6 +127,6 @@ def run_training(moves_and_positions: MovesAndPositions, output_folder: str,
 				best_loss = best_vloss
 
 		epoch_number += 1
-		print(f"Epoch {epoch_number}")
+		logging.info(f"Epoch {epoch_number}")
 
-	print("\n\nBEST VALIDATION LOSS FOR ALL MODELS: ", best_loss)
+	logging.info(f"\n\nBEST VALIDATION LOSS FOR ALL MODELS: {best_loss}", )

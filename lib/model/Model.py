@@ -1,3 +1,4 @@
+import logging
 import time
 
 import chess
@@ -7,6 +8,8 @@ from gym_chess.alphazero.board_encoding import BoardHistory
 from torch import Tensor
 
 from lib.encode_decode.decode import decode_move
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S.%f')
 
 
 class Model(torch.nn.Module):
@@ -81,20 +84,20 @@ class Model(torch.nn.Module):
 
 					# todo debugging
 					if move is None:
-						print(f"Why is move None? uci_move = {uci_move}")
+						logging.info(f"Why is move None? uci_move = {uci_move}")
 
 				except IndexError:
 					# this happens when chess.Move.from_uci(str(uci_move) fails, printing uci_move will produce an error
-					# print(f"IndexError with index {move_idx} and uci_move {uci_move}: {ie}")
-					# print(f"IndexError with index {move_idx}: {ie}")
+					# logging.info(f"IndexError with index {move_idx} and uci_move {uci_move}: {ie}")
+					# logging.info(f"IndexError with index {move_idx}: {ie}")
 					# todo remove debug
 					# uci_move = decode_move(move_idx, board)
 					# move = chess.Move.from_uci(str(uci_move))
-					# print(f"uci_move={uci_move}")
+					# logging.info(f"uci_move={uci_move}")
 					# self.print_move(legal_moves, uci_move, "uci_move=")
 					pass
 				except Exception as e:
-					print(f"something seriously went wrong with index {move_idx} and move {move}: {e}")
+					logging.info(f"something seriously went wrong with index {move_idx} and move {move}: {e}")
 					pass
 				# remove the move, so it's not chosen again next iteration
 				# TODO probably better way to do this, but it is not too time critical as it is only for predictions
@@ -106,7 +109,7 @@ class Model(torch.nn.Module):
 				self.print_move(legal_moves, move, "Returning random move: ")
 				return move
 
-			# print("Your predict function could not find any legal/decodable moves")
+			# logging.info("Your predict function could not find any legal/decodable moves")
 			# if no legal moves found, return None
 			# TODO raise Exception("Your predict function could not find any legal/decodable moves")
 			return None
@@ -114,9 +117,9 @@ class Model(torch.nn.Module):
 	@staticmethod
 	def print_legal_moves(legal_moves: chess.LegalMoveGenerator) -> None:
 		sans = ", ".join(legal_moves.board.lan(move) for move in legal_moves)
-		print(f"Legal moves are:\n<LegalMoveGenerator at {id(legal_moves):#x} ({sans})>")
+		logging.info(f"Legal moves are:\n<LegalMoveGenerator at {id(legal_moves):#x} ({sans})>")
 
 	@staticmethod
 	def print_move(legal_moves: chess.LegalMoveGenerator, move: chess.Move, prefix="") -> None:
 		sans = legal_moves.board.lan(move)
-		print(f"{prefix}{sans}")
+		logging.info(f"{prefix}{sans}")
