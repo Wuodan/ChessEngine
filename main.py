@@ -1,4 +1,4 @@
-from ReducedVersion.lib.training.training import run_training
+from lib.training.training import run_training
 from lib.import_pgn.import_pgn import pgn_to_moves_and_positions
 from lib.encode_decode.encode import encode_moves_and_positions
 

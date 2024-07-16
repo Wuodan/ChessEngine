@@ -1,11 +1,9 @@
-from datetime import datetime
-
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 
-from ReducedVersion.lib.MovesAndPositions import MovesAndPositions
-from ReducedVersion.lib.model.Model import Model
+from lib.MovesAndPositions import MovesAndPositions
+from lib.model.Model import Model
 
 
 def get_device() -> torch.device:
@@ -119,8 +117,7 @@ def run_training(moves_and_positions: MovesAndPositions, output_folder: str,
 
 			# if better than previous best loss from all models created, save it
 			if best_loss > best_vloss:
-				timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-				model_path = output_folder + '/model_{}_{}'.format(timestamp, epoch_number)
+				model_path = output_folder + '/model'
 				torch.save(model.state_dict(), model_path)
 				save_best_model(best_vloss, model_path, output_folder)
 				best_loss = best_vloss

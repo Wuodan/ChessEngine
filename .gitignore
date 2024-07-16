@@ -19,4 +19,4 @@ PythonVersion/__pycache__
 data/rawData/*/*
 data/preparedData/*/*
 data/savedModels/*/*
-ReducedVersion/data/*
+data/*

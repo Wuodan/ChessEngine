@@ -6,7 +6,7 @@ import torch
 from gym_chess.alphazero.board_encoding import BoardHistory
 from torch import Tensor
 
-from ReducedVersion.lib.encode_decode.decode import decode_move
+from lib.encode_decode.decode import decode_move
 
 
 class Model(torch.nn.Module):

@@ -3,7 +3,7 @@ from gym_chess import Chess
 from gym_chess.alphazero.board_encoding import BoardHistory
 from gym_chess.alphazero.move_encoding import MoveEncoding
 
-from ReducedVersion.lib.MovesAndPositions import MovesAndPositions
+from lib.MovesAndPositions import MovesAndPositions
 
 
 # TODO obsolete -> remove

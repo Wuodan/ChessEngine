@@ -5,8 +5,8 @@ import torch
 from chess import pgn
 from stockfish import Stockfish
 
-from ReducedVersion.lib.check_game_state.check_game_state import check_game_state, GameState
-from ReducedVersion.lib.model.Model import Model
+from lib.check_game_state.check_game_state import check_game_state, GameState
+from lib.model.Model import Model
 
 
 def read_best_model_file(best_model_path: str) -> str | None:
@@ -54,7 +54,7 @@ def end_game(board: chess.Board) -> GameState:
 
 def main() -> chess.Board:
 	output_folder = 'data/savedModels'
-	stockfish_path = r"../stockfish/stockfish-windows-x86-64-avx2.exe"
+	stockfish_path = r"stockfish/stockfish-windows-x86-64-avx2.exe"
 	max_number_of_moves = 150
 
 	model = get_model(output_folder)
@@ -63,7 +63,7 @@ def main() -> chess.Board:
 	board = chess.Board()
 
 	# set a limit for the game
-	for i in range(max_number_of_moves):
+	for _ in range(max_number_of_moves):
 		# first my artificial intelligence move
 		move = model.predict(board)
 
