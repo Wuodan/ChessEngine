@@ -68,7 +68,7 @@ class Model(torch.nn.Module):
 
 			# verify that move is legal and can be decoded before returning
 			while len(probs) > 0:  # try max 100 times, if not throw an error
-				move_idx = probs.argmax()
+				move_idx = int(probs.argmax())
 				try:  # TODO should not have try here, but was a bug with idx 499 if it is black to move
 					uci_move = decode_move(move_idx, board)
 					if uci_move is None:  # could not decode
@@ -83,10 +83,10 @@ class Model(torch.nn.Module):
 					if move is None:
 						print(f"Why is move None? uci_move = {uci_move}")
 
-				except IndexError as ie:
+				except IndexError:
 					# this happens when chess.Move.from_uci(str(uci_move) fails, printing uci_move will produce an error
 					# print(f"IndexError with index {move_idx} and uci_move {uci_move}: {ie}")
-					print(f"IndexError with index {move_idx}: {ie}")
+					# print(f"IndexError with index {move_idx}: {ie}")
 					# todo remove debug
 					# uci_move = decode_move(move_idx, board)
 					# move = chess.Move.from_uci(str(uci_move))
@@ -106,7 +106,7 @@ class Model(torch.nn.Module):
 				self.print_move(legal_moves, move, "Returning random move: ")
 				return move
 
-			print("Your predict function could not find any legal/decodable moves")
+			# print("Your predict function could not find any legal/decodable moves")
 			# if no legal moves found, return None
 			# TODO raise Exception("Your predict function could not find any legal/decodable moves")
 			return None
