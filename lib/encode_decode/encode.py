@@ -1,38 +1,47 @@
 import chess
 from gym_chess import Chess, MoveEncoding
 from gym_chess.alphazero.board_encoding import BoardHistory
-
 from lib.MovesAndPositions import MovesAndPositions
+from multiprocessing import Pool, cpu_count
 
 
-def encode_moves_and_positions(parsed_games: [[str]]) -> MovesAndPositions:
-	all_moves = []
-	all_positions = []
+def encode_game_moves(uci_moves):
+	moves = []
+	positions = []
 
 	env = Chess()
-
 	move_encoding = MoveEncoding(env)
 	board_history = BoardHistory(0)
 
-	for i_game in range(len(parsed_games)):
-		env.reset()
-		board = chess.Board()
-		game_moves = parsed_games[i_game]
+	env.reset()
+	board = chess.Board()
 
-		for i_move in range(len(game_moves)):
-			uci_move = game_moves[i_move]
+	for uci_move in uci_moves:
+		move = chess.Move.from_uci(uci_move)
+		encoded_move = move_encoding.encode(move)
+		encoded_position = board_history.encode(board)
 
-			move = chess.Move.from_uci(uci_move)
-			encoded_move = move_encoding.encode(move)
+		board, _, done, _ = env.step(move)
+		# openai terminates the game when a draw can be claimed, prevent this
+		if done:
+			env._ready = True
 
-			encoded_position = board_history.encode(board)
+		moves.append(encoded_move)
+		positions.append(encoded_position)
 
-			board, _, done, _ = env.step(move)
-			# openai terminates the game when a draw can be claimed, prevent this
-			if done:
-				env._ready = True
+	return moves, positions
 
-			all_moves.append(encoded_move)
-			all_positions.append(encoded_position)
+
+def encode_moves_and_positions(parsed_games: [[str]]) -> MovesAndPositions:
+	num_workers = cpu_count()
+
+	with Pool(processes=num_workers) as pool:
+		results = pool.map(encode_game_moves, parsed_games)
+
+	all_moves = []
+	all_positions = []
+	for moves, positions in results:
+		all_moves.extend(moves)
+		all_positions.extend(positions)
 
 	return MovesAndPositions(all_moves, all_positions)
