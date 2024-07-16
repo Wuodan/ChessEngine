@@ -55,7 +55,14 @@ def end_game(board: chess.Board) -> GameState:
 		return game_state
 
 
-def main() -> chess.Board:
+def print_pgn(board: chess.Board) -> None:
+	game = pgn.Game.from_board(board)
+	exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
+	pgn_string = game.accept(exporter)
+	logging.info(f"PGN is:\n{pgn_string}")
+
+
+def main() -> None:
 	output_folder = 'data/savedModels'
 	stockfish_path = r"stockfish/stockfish-windows-x86-64-avx2.exe"
 	max_number_of_moves = 150
@@ -67,11 +74,13 @@ def main() -> chess.Board:
 
 	# set a limit for the game
 	for _ in range(max_number_of_moves):
+
 		# first my artificial intelligence move
 		move = model.predict(board)
+		print(f"Got move from AI model: {move}")
 
 		if move is None:
-			return board
+			break
 
 		board.push(move)
 
@@ -80,23 +89,22 @@ def main() -> chess.Board:
 
 		# #then get stockfish move
 		stockfish_move = stockfish.get_best_move_time(1)
+		print(f"Got move from Stockfish: {stockfish_move}")
 
 		if move is None:
-			return board
+			break
 
 		stockfish_move = chess.Move.from_uci(stockfish_move)
 
 		stockfish.make_moves_from_current_position([stockfish_move.uci()])
 		board.push(stockfish_move)
 
+		print_pgn(board)
+
 	game_state = end_game(board)
 	logging.info(f"Game ended with {game_state}")
 
-	game = pgn.Game.from_board(board)
-	exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
-	pgn_string = game.accept(exporter)
-
-	logging.info(f"PGN is:\n{pgn_string}")
+	print_pgn(board)
 
 
 if __name__ == "__main__":

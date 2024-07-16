@@ -3,5 +3,6 @@ gym-chess
 logging
 numpy<2
 setuptools
+stockfish
 torch
 typing

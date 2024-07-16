@@ -1,0 +1,28 @@
+1. e4 d5 2. Nf3 dxe4 3. Nc3 exf3 4. Bd3 Nh6 5. Rb1 f5 6. Ne2 Nf7 *
+
+The AI then wants to short-castle with O-O, which is wrongly translated to e1h1 instead of e1g1
+
+
+
+
+Got move from Stockfish: h6f7
+2024-07-17 00:11:06 - Got legal move from model: Ra1-b1
+2024-07-17 00:11:06 - PGN is:
+1. e4 d5 2. Nf3 dxe4 3. Nc3 exf3 4. Bd3 Nh6 5. Rb1 f5 *
+2024-07-17 00:11:06 - Got legal move from model: Nc3-e2
+2024-07-17 00:11:06 - PGN is:
+1. e4 d5 2. Nf3 dxe4 3. Nc3 exf3 4. Bd3 Nh6 5. Rb1 f5 6. Ne2 Nf7 *
+2024-07-17 00:11:06 - Got legal move from model: O-O
+Traceback (most recent call last):
+  File "C:\Users\stefa\AppData\Roaming\JetBrains\IdeaIC2024.1\plugins\python-ce\helpers\pydev\pydevd.py", line 1551, in _exec
+    pydev_imports.execfile(file, globals, locals)  # execute the script
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\stefa\AppData\Roaming\JetBrains\IdeaIC2024.1\plugins\python-ce\helpers\pydev\_pydev_imps\_pydev_execfile.py", line 18, in execfile
+    exec(compile(contents+"\n", file, 'exec'), glob, loc)
+  File "C:\development\EivindKjosbakken\ChessEngine\play.py", line 112, in <module>
+    main()
+  File "C:\development\EivindKjosbakken\ChessEngine\play.py", line 88, in main
+    stockfish.make_moves_from_current_position([move.uci()])
+  File "C:\development\EivindKjosbakken\ChessEngine\venv\Lib\site-packages\stockfish\models.py", line 238, in make_moves_from_current_position
+    raise ValueError(f"Cannot make move: {move}")
+ValueError: Cannot make move: e1h1

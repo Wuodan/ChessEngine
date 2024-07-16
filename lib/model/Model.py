@@ -36,7 +36,9 @@ class Model(torch.nn.Module):
 
 		self.random_number_generator = np.random.default_rng(int(time.time()))
 		self.board_history = BoardHistory(0)
-		self.move_encoding = MoveEncoding(Chess())
+		env = Chess()
+		env.reset()
+		self.move_encoding = MoveEncoding(env)
 
 	def forward(self, x: Tensor) -> Tensor:  # x.shape = (batch size, 896)
 		x = x.to(torch.float32)
@@ -67,7 +69,11 @@ class Model(torch.nn.Module):
 			probs = probs.numpy()[0]  # do not want tensor anymore, 0 since it is a 2d array with 1 row
 
 			legal_moves = board.legal_moves
-			self.print_legal_moves(legal_moves)
+			# self.print_legal_moves(legal_moves)
+
+			if legal_moves.count() == 0:
+				# logging.info("Found no legal moves")
+				return None
 
 			# verify that move is legal and can be decoded before returning
 			while len(probs) > 0:  # try max 100 times, if not throw an error
@@ -97,8 +103,8 @@ class Model(torch.nn.Module):
 					# logging.info(f"uci_move={uci_move}")
 					# self.print_move(legal_moves, uci_move, "uci_move=")
 					pass
-				except Exception as e:
-					logging.info(f"something seriously went wrong with index {move_idx} and move {move}: {e}")
+				except Exception:
+					# logging.info(f"something seriously went wrong with index {move_idx}: {e}")
 					pass
 				# remove the move, so it's not chosen again next iteration
 				# TODO probably better way to do this, but it is not too time critical as it is only for predictions
