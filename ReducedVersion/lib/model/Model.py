@@ -1,13 +1,17 @@
+import time
+
 import chess
 import numpy as np
 import torch
-from ReducedVersion.lib.encode_decode.encode import encode_board
+from gym_chess.alphazero.board_encoding import BoardHistory
+from torch import Tensor
+
 from ReducedVersion.lib.encode_decode.decode import decode_move
 
 
 class Model(torch.nn.Module):
 
-	def __init__(self):
+	def __init__(self) -> None:
 		super(Model, self).__init__()
 		self.INPUT_SIZE = 896
 		# self.INPUT_SIZE = 7*7*13 # NOTE changing input size for using CNNs
@@ -28,9 +32,10 @@ class Model(torch.nn.Module):
 		self.linear5 = torch.nn.Linear(200, self.OUTPUT_SIZE)
 		self.softmax = torch.nn.Softmax(1)  # use softmax as prob for each move, dim 1 as dim 0 is the batch dimension
 
-		self.random_number_generator = np.random.default_rng()
+		self.random_number_generator = np.random.default_rng(int(time.time()))
+		self.board_history = BoardHistory(0)
 
-	def forward(self, x):  # x.shape = (batch size, 896)
+	def forward(self, x: Tensor) -> Tensor:  # x.shape = (batch size, 896)
 		x = x.to(torch.float32)
 		# x = self.cnn1(x) # for using CNNs
 		x = x.reshape(x.shape[0], -1)
@@ -46,14 +51,14 @@ class Model(torch.nn.Module):
 		# x = self.softmax(x) # do not use softmax since you are using cross entropy loss
 		return x
 
-	def predict(self, board: chess.Board):
+	def predict(self, board: chess.Board) -> chess.Move | None:
 		# takes in a chess board and returns a move-object.
 		# NOTE: this function should definitely be written better, but it works for now
 		with torch.no_grad():
-			encoded_board = encode_board(board)
-			encoded_board = encoded_board.reshape(1, -1)
-			encoded_board = torch.from_numpy(encoded_board)
-			res = self.forward(encoded_board)
+			encoded_position = self.board_history.encode(board)
+			encoded_position = encoded_position.reshape(1, -1)
+			tensor_board = torch.from_numpy(encoded_position)
+			res = self.forward(tensor_board)
 			probs = self.softmax(res)
 
 			probs = probs.numpy()[0]  # do not want tensor anymore, 0 since it is a 2d array with 1 row
@@ -73,8 +78,14 @@ class Model(torch.nn.Module):
 					if move in legal_moves:  # if legal, return, else: loop continues after deleting the move
 						self.print_move(legal_moves, move, "Got legal move from model: ")
 						return move
+
+					# todo debugging
+					if move is None:
+						print(f"Why is move None? uci_move = {uci_move}")
+
 				except IndexError as ie:
-					print(f"IndexError with index {move_idx} and move {move}: {ie}")
+					# this happens when chess.Move.from_uci(str(uci_move) fails, printing uci_move will produce an error
+					# print(f"IndexError with index {move_idx} and uci_move {uci_move}: {ie}")
 					# todo remove debug
 					# uci_move = decode_move(move_idx, board)
 					# move = chess.Move.from_uci(str(uci_move))
@@ -100,11 +111,11 @@ class Model(torch.nn.Module):
 			return None
 
 	@staticmethod
-	def print_legal_moves(legal_moves: chess.LegalMoveGenerator):
+	def print_legal_moves(legal_moves: chess.LegalMoveGenerator) -> None:
 		sans = ", ".join(legal_moves.board.lan(move) for move in legal_moves)
 		print(f"Legal moves are:\n<LegalMoveGenerator at {id(legal_moves):#x} ({sans})>")
 
 	@staticmethod
-	def print_move(legal_moves: chess.LegalMoveGenerator, move: chess.Move, prefix=""):
+	def print_move(legal_moves: chess.LegalMoveGenerator, move: chess.Move, prefix="") -> None:
 		sans = legal_moves.board.lan(move)
 		print(f"{prefix}{sans}")

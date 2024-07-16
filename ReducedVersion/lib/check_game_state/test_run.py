@@ -2,7 +2,7 @@ import chess
 from check_game_state import check_game_state
 
 
-def run(fen):
+def run(fen: str) -> None:
 	board = chess.Board(fen)
 	state = check_game_state(board)
 	# Check game state

@@ -1,5 +1,7 @@
 from enum import Enum
 
+import chess
+
 
 class GameOutcome(Enum):
 	DRAW = "draw"
@@ -17,10 +19,10 @@ class GameState(Enum):
 	DRAW_REPETITION = "Draw (fivefold repetition)"
 	DRAW_FIFTY_MOVES = "Draw (seventy-five moves without pawn movement or capture)"
 
-	def is_game_ongoing(self):
+	def is_game_ongoing(self) -> bool:
 		return self == GameState.ONGOING
 
-	def draw_or_who_won(self):
+	def draw_or_who_won(self) -> GameOutcome | None:
 		if self in {GameState.DRAW_CAN_CLAIM,
 					GameState.DRAW_STALEMATE,
 					GameState.DRAW_INSUFFICIENT_MATERIAL,
@@ -34,7 +36,7 @@ class GameState(Enum):
 		return None  # For ongoing games
 
 
-def check_game_state(board):
+def check_game_state(board: chess.Board) -> GameState:
 	if board.is_checkmate():
 		if board.turn:  # True for white's turn
 			return GameState.BLACK_WINS
@@ -52,4 +54,3 @@ def check_game_state(board):
 		return GameState.DRAW_FIFTY_MOVES
 	else:
 		return GameState.ONGOING
-

@@ -95,7 +95,7 @@ def decode_queen(action: int) -> Optional[chess.Move]:
 	return move
 
 
-def decode_under_promotion(action):
+def decode_under_promotion(action: int) -> chess.Move | None:
 	_NUM_TYPES: int = 9  # = 3 directions * 3 piece types (see below)
 
 	# Starting point of under_promotions in last dimension of 8 x 8 x 73 action
@@ -146,7 +146,7 @@ def decode_under_promotion(action):
 
 
 # primary decoding function, the ones above are just helper functions
-def decode_move(action: int, board) -> Move | None:
+def decode_move(action: int, board: chess.Board) -> Move | None:
 	move = decode_queen(action)
 	is_queen_move = move is not None
 

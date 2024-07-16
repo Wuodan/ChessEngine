@@ -2,12 +2,12 @@ import chess
 import os
 
 
-def clear_console():
+def clear_console() -> None:
 	# Clear the console screen based on the operating system
 	os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def print_chess_board_with_pieces(board):
+def print_chess_board_with_pieces(board: chess.Board) -> None:
 	pieces = {
 		'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
 		'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙',

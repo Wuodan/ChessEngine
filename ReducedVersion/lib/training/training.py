@@ -9,7 +9,7 @@ from ReducedVersion.lib.MovesAndPositions import MovesAndPositions
 from ReducedVersion.lib.model.Model import Model
 
 
-def get_device():
+def get_device() -> str:
 	return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -67,7 +67,7 @@ def train_one_epoch(
 	return last_loss
 
 
-def save_best_model(vloss: float, path: str, output_folder: str):
+def save_best_model(vloss: float, path: str, output_folder: str) -> None:
 	f = open(output_folder + "/bestModel.txt", "w")
 	f.write(str(vloss))
 	f.write("\n")
