@@ -6,9 +6,9 @@ def pgn_to_moves_and_positions(pgn_file: str) -> [ParsedGame]:
 	parsed_games = []
 
 	with open(pgn_file, "r") as pgn:
-		moves = []
-		positions = []
 		while True:
+			moves = []
+			positions = []
 			game = chess.pgn.read_game(pgn)
 
 			if game is None:
