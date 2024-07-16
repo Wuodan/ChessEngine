@@ -35,20 +35,26 @@ def train_one_epoch(
 	running_loss = 0.
 	last_loss = 0.
 
-	for i, data in enumerate(training_loader):
+	i = 0
+	# for i, data in enumerate(training_loader):
+	for batch_data, batch_labels in training_loader:
 		start_time = time.time()
 
+		# Transfer batch data to GPU
+		batch_data = batch_data.cuda(non_blocking=True)
+		batch_labels = batch_labels.cuda(non_blocking=True)
+
 		# Every data instance is an input + label pair
-		inputs, labels = data
+		# inputs, labels = data
+
+		# Make predictions for this batch
+		outputs = model(batch_data)
 
 		# Zero your gradients for every batch!
 		optimizer.zero_grad()
 
-		# Make predictions for this batch
-		outputs = model(inputs)
-
 		# Compute the loss and its gradients
-		loss = loss_fn(outputs, labels)
+		loss = loss_fn(outputs, batch_labels)
 		loss.backward()
 
 		# Adjust learning weights
@@ -59,9 +65,11 @@ def train_one_epoch(
 
 		# Profiling each batch
 		batch_time = time.time() - start_time
-		if i % 100 == 99:
+		if i % training_loader.batch_size == training_loader.batch_size - 1:
 			print(f"Batch {i + 1}: Time taken: {batch_time:.4f}s, Loss: {running_loss / 100:.4f}")
 			running_loss = 0.
+
+		i += 1
 
 	return last_loss
 
