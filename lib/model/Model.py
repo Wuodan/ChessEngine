@@ -4,10 +4,9 @@ import time
 import chess
 import numpy as np
 import torch
+from gym_chess import MoveEncoding, Chess
 from gym_chess.alphazero.board_encoding import BoardHistory
 from torch import Tensor
-
-from lib.encode_decode.decode import decode_move
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -37,6 +36,7 @@ class Model(torch.nn.Module):
 
 		self.random_number_generator = np.random.default_rng(int(time.time()))
 		self.board_history = BoardHistory(0)
+		self.move_encoding = MoveEncoding(Chess())
 
 	def forward(self, x: Tensor) -> Tensor:  # x.shape = (batch size, 896)
 		x = x.to(torch.float32)
@@ -57,7 +57,7 @@ class Model(torch.nn.Module):
 	def predict(self, board: chess.Board) -> chess.Move | None:
 		# takes in a chess board and returns a move-object.
 		# NOTE: this function should definitely be written better, but it works for now
-		with torch.no_grad():
+		with (torch.no_grad()):
 			encoded_position = self.board_history.encode(board)
 			encoded_position = encoded_position.reshape(1, -1)
 			tensor_board = torch.from_numpy(encoded_position)
@@ -73,7 +73,8 @@ class Model(torch.nn.Module):
 			while len(probs) > 0:  # try max 100 times, if not throw an error
 				move_idx = int(probs.argmax())
 				try:  # TODO should not have try here, but was a bug with idx 499 if it is black to move
-					uci_move = decode_move(move_idx, board)
+					uci_move = self.move_encoding.decode(move_idx)
+					# decode_move(move_idx, board)
 					if uci_move is None:  # could not decode
 						probs = np.delete(probs, move_idx)
 						continue

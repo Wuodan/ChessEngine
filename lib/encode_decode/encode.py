@@ -1,12 +1,10 @@
 import chess
-from gym_chess import Chess
+from gym_chess import Chess, MoveEncoding
 from gym_chess.alphazero.board_encoding import BoardHistory
-from gym_chess.alphazero.move_encoding import MoveEncoding
 
 from lib.MovesAndPositions import MovesAndPositions
 
 
-# TODO obsolete -> remove
 def encode_moves_and_positions(parsed_games: [[str]]) -> MovesAndPositions:
 	all_moves = []
 	all_positions = []

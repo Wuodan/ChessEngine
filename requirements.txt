@@ -1,0 +1,8 @@
+chess
+# gitpython
+gym-chess
+logging
+numpy
+setuptools
+torch
+typing

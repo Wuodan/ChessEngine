@@ -13,3 +13,5 @@ data/rawData/*/*
 data/preparedData/*/*
 data/savedModels/*/*
 data/*
+lib/gym_chess
+venv

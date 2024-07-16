@@ -1,7 +1,7 @@
 import numpy as np
 import chess
 from chess import Move
-from gym_chess.alphazero.move_encoding import utils
+from lib.gym_chess.gym_chess.alphazero.move_encoding import utils
 from typing import Optional
 
 
