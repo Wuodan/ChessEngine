@@ -18,8 +18,8 @@ def get_device() -> torch.device:
 def get_data_loader(moves_and_positions: MovesAndPositions, batch_size, num_workers=4) -> DataLoader:
 	all_positions = np.array(moves_and_positions.positions)
 	all_moves = np.array(moves_and_positions.moves)
-	positions = torch.from_numpy(np.asarray(all_positions))
-	moves = torch.from_numpy(np.asarray(all_moves))
+	positions = torch.from_numpy(np.asarray(all_positions)).float()  # Ensure tensor type is float
+	moves = torch.from_numpy(np.asarray(all_moves)).long()  # Ensure tensor type is long for classification labels
 
 	training_set = TensorDataset(positions, moves)
 
@@ -30,14 +30,18 @@ def get_data_loader(moves_and_positions: MovesAndPositions, batch_size, num_work
 def train_one_epoch(
 		model: torch.nn.Module, optimizer: torch.optim.SGD, loss_fn: torch.nn.CrossEntropyLoss,
 		training_loader: DataLoader, device: torch.device) -> float:
+	model.train()
 	running_loss = 0.
 	last_loss = 0.
 
-	i = 0
-	for batch_data, batch_labels in training_loader:
-		start_time = time.time()
+	for i, (batch_data, batch_labels) in enumerate(training_loader):
+		# Ensure the data is in tensor format
+		if not isinstance(batch_data, torch.Tensor):
+			batch_data = torch.tensor(batch_data).float()
+		if not isinstance(batch_labels, torch.Tensor):
+			batch_labels = torch.tensor(batch_labels).long()
 
-		# Transfer batch data to GPU
+		# Transfer batch data to GPU asynchronously
 		batch_data = batch_data.to(device, non_blocking=True)
 		batch_labels = batch_labels.to(device, non_blocking=True)
 
@@ -57,15 +61,11 @@ def train_one_epoch(
 		# Gather data and report
 		running_loss += loss.item()
 
-		# Profiling each batch
-		batch_time = time.time() - start_time
-		if i % training_loader.batch_size == training_loader.batch_size - 1:
-			print(f"Batch {i + 1}: Time taken: {batch_time:.4f}s, Loss: {running_loss / 100:.4f}")
-			running_loss = 0.
+		# Optional: Logging each batch
+		if (i + 1) % 100 == 0:
+			print(f"Batch {i + 1}, Loss: {running_loss / (i + 1):.4f}")
 
-		i += 1
-
-	return last_loss
+	return running_loss / len(training_loader)
 
 
 def save_best_model(vloss: float, path: str, output_folder: str) -> None:
@@ -102,25 +102,26 @@ def run_training(
 		epoch_start_time = time.time()
 
 		# Make sure gradient tracking is on, and do a pass over the data
-		model.train(True)
 		last_loss = train_one_epoch(model, optimizer, loss_fn, training_loader, device)
 
 		running_vloss = 0.0
 		model.eval()
 
 		with torch.no_grad():
-			i = 0
-			for batch_data, batch_labels in training_loader:
-				# for i, vdata in enumerate(training_loader):
-				# vinputs, vlabels = batch_data
+			for i, (batch_data, batch_labels) in enumerate(training_loader):
+				# Ensure the data is in tensor format
+				if not isinstance(batch_data, torch.Tensor):
+					batch_data = torch.tensor(batch_data).float()
+				if not isinstance(batch_labels, torch.Tensor):
+					batch_labels = torch.tensor(batch_labels).long()
+
 				batch_data = batch_data.to(device, non_blocking=True)
 				batch_labels = batch_labels.to(device, non_blocking=True)
 				voutputs = model(batch_data)
 				vloss = loss_fn(voutputs, batch_labels)
-				running_vloss += vloss
-				i += 1
+				running_vloss += vloss.item()
 
-		avg_vloss = running_vloss / i
+		avg_vloss = running_vloss / len(training_loader)
 
 		if avg_vloss < best_vloss:
 			best_vloss = avg_vloss
