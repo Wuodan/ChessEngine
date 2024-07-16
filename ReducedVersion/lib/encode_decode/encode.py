@@ -18,6 +18,7 @@ def encode_moves_and_positions(parsed_games: [[str]]) -> MovesAndPositions:
 
 	for i_game in range(len(parsed_games)):
 		env.reset()
+		board = chess.Board()
 		game_moves = parsed_games[i_game]
 
 		for i_move in range(len(game_moves)):
@@ -25,13 +26,13 @@ def encode_moves_and_positions(parsed_games: [[str]]) -> MovesAndPositions:
 
 			move = chess.Move.from_uci(uci_move)
 			encoded_move = move_encoding.encode(move)
-			board, _, done, _ = env.step(move)
 
+			encoded_position = board_history.encode(board)
+
+			board, _, done, _ = env.step(move)
 			# openai terminates the game when a draw can be claimed, prevent this
 			if done:
 				env._ready = True
-
-			encoded_position = board_history.encode(board)
 
 			all_moves.append(encoded_move)
 			all_positions.append(encoded_position)
