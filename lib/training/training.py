@@ -7,7 +7,7 @@ from torch.utils.data import TensorDataset, DataLoader
 from lib.MovesAndPositions import MovesAndPositions
 from lib.model.Model import Model
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S.%f')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def get_device() -> torch.device:

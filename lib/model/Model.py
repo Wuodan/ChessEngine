@@ -9,7 +9,7 @@ from torch import Tensor
 
 from lib.encode_decode.decode import decode_move
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S.%f')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 class Model(torch.nn.Module):

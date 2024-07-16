@@ -4,7 +4,7 @@ from lib.encode_decode.encode import encode_moves_and_positions
 from lib.import_pgn.import_pgn import pgn_to_moves_and_positions
 from lib.training.training import run_training
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S.%f')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def main() -> None:

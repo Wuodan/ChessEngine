@@ -9,7 +9,7 @@ from lib.check_game_state.check_game_state import check_game_state, GameState
 from lib.model.Model import Model
 from stockfish import Stockfish
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S.%f')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def read_best_model_file(best_model_path: str) -> str | None:
