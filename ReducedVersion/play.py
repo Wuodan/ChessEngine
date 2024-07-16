@@ -2,8 +2,8 @@ from pathlib import Path
 
 import chess
 import torch
+from chess import pgn
 from stockfish import Stockfish
-from tqdm import tqdm
 
 from ReducedVersion.lib.check_game_state.check_game_state import check_game_state, GameState
 from ReducedVersion.lib.model.Model import Model
@@ -52,7 +52,7 @@ def end_game(board: chess.Board) -> GameState:
 		return game_state
 
 
-def main() -> GameState:
+def main() -> chess.Board:
 	output_folder = 'data/savedModels'
 	stockfish_path = r"../stockfish/stockfish-windows-x86-64-avx2.exe"
 	max_number_of_moves = 150
@@ -61,40 +61,40 @@ def main() -> GameState:
 	stockfish = init_stockfish(stockfish_path)
 
 	board = chess.Board()
-	all_moves = []  # list of strings for saving moves for setting pos for stockfish
 
-	for i in tqdm(range(max_number_of_moves)):  # set a limit for the game
+	# set a limit for the game
+	for i in range(max_number_of_moves):
 		# first my artificial intelligence move
-		# try:
 		move = model.predict(board)
 
 		if move is None:
-			return end_game(board), all_moves
+			return board
 
 		board.push(move)
+
 		# add so stockfish can see
-		stockfish.make_moves_from_current_position([move])
-		# all_moves.append(str(move))
-		# except Exception as e:
-		# 	if str(e) == "object of type 'LegalMoveGenerator' has no len()":
-		# 		print("game over. You lost in", i, "moves")
-		# 	else:
-		# 		print("An error occurred:", str(e))
-		# 	break
+		stockfish.make_moves_from_current_position([move.uci()])
 
 		# #then get stockfish move
-		# stockfish.set_position(all_moves)
 		stockfish_move = stockfish.get_best_move_time(1)
 
 		if move is None:
-			return end_game(board), all_moves
+			return board
 
-		all_moves.append(stockfish_move)
 		stockfish_move = chess.Move.from_uci(stockfish_move)
+
+		stockfish.make_moves_from_current_position([stockfish_move.uci()])
 		board.push(stockfish_move)
 
 
 if __name__ == "__main__":
-	game_state, all_moves = main()
+	board = main()
+
+	game_state = end_game(board)
 	print(f"Game ended with {game_state}")
-	print(f"Moves were {all_moves}")
+
+	game = pgn.Game.from_board(board)
+	exporter = chess.pgn.StringExporter(headers=False, variations=False, comments=False)
+	pgn_string = game.accept(exporter)
+
+	print(f"PGN is:\n{pgn_string}")

@@ -3,13 +3,12 @@ from datetime import datetime
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset, DataLoader
-from tqdm import tqdm
 
 from ReducedVersion.lib.MovesAndPositions import MovesAndPositions
 from ReducedVersion.lib.model.Model import Model
 
 
-def get_device() -> str:
+def get_device() -> torch.device:
 	return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -91,7 +90,7 @@ def run_training(moves_and_positions: MovesAndPositions, output_folder: str,
 
 	best_vloss = 1_000_000.
 
-	for _ in tqdm(range(epochs)):
+	for _ in range(epochs):
 
 		# Make sure gradient tracking is on, and do a pass over the data
 		model.train(True)
