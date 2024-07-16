@@ -1,28 +1,17 @@
 import chess.pgn
-from ReducedVersion.lib.ParsedGame import ParsedGame
 
 
-def pgn_to_moves_and_positions(pgn_file: str) -> [ParsedGame]:
+def pgn_to_moves_and_positions(pgn_file: str) -> [[str]]:
 	parsed_games = []
 
 	with open(pgn_file, "r") as pgn:
 		while True:
-			moves = []
-			positions = []
 			game = chess.pgn.read_game(pgn)
 
 			if game is None:
 				break
 
-			board = game.board()
-
-			for move in game.mainline_moves():
-				moves.append(move.uci())
-				board.push(move)
-				positions.append(board.fen())
-
-			assert len(moves) == len(positions), "Moves and positions of a game must be of same length"
-			parsed_game = ParsedGame(moves, positions)
-			parsed_games.append(parsed_game)
+			game_moves = [move.uci() for move in game.mainline_moves()]
+			parsed_games.append(game_moves)
 
 	return parsed_games

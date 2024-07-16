@@ -86,6 +86,7 @@ class Model(torch.nn.Module):
 				except IndexError as ie:
 					# this happens when chess.Move.from_uci(str(uci_move) fails, printing uci_move will produce an error
 					# print(f"IndexError with index {move_idx} and uci_move {uci_move}: {ie}")
+					print(f"IndexError with index {move_idx}: {ie}")
 					# todo remove debug
 					# uci_move = decode_move(move_idx, board)
 					# move = chess.Move.from_uci(str(uci_move))

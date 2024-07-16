@@ -4,11 +4,10 @@ from gym_chess.alphazero.board_encoding import BoardHistory
 from gym_chess.alphazero.move_encoding import MoveEncoding
 
 from ReducedVersion.lib.MovesAndPositions import MovesAndPositions
-from ReducedVersion.lib.ParsedGame import ParsedGame
 
 
 # TODO obsolete -> remove
-def encode_moves_and_positions(parsed_games: [[ParsedGame]]) -> MovesAndPositions:
+def encode_moves_and_positions(parsed_games: [[str]]) -> MovesAndPositions:
 	all_moves = []
 	all_positions = []
 
@@ -19,10 +18,10 @@ def encode_moves_and_positions(parsed_games: [[ParsedGame]]) -> MovesAndPosition
 
 	for i_game in range(len(parsed_games)):
 		env.reset()
-		game = parsed_games[i_game]
+		game_moves = parsed_games[i_game]
 
-		for i_move in range(len(game.moves)):
-			uci_move = game.moves[i_move]
+		for i_move in range(len(game_moves)):
+			uci_move = game_moves[i_move]
 
 			move = chess.Move.from_uci(uci_move)
 			encoded_move = move_encoding.encode(move)
