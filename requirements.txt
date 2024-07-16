@@ -1,8 +1,7 @@
 chess
-# gitpython
 gym-chess
 logging
-numpy
+numpy<2
 setuptools
 torch
 typing
