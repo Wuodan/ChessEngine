@@ -15,7 +15,7 @@ def get_device() -> torch.device:
 	return device
 
 
-def get_data_loader(moves_and_positions: MovesAndPositions, batch_size=4096, num_workers=4) -> DataLoader:
+def get_data_loader(moves_and_positions: MovesAndPositions, batch_size, num_workers=4) -> DataLoader:
 	# transfer all data to GPU if available
 	device = get_device()
 	all_positions = np.array(moves_and_positions.positions)
@@ -75,13 +75,11 @@ def save_best_model(vloss: float, path: str, output_folder: str) -> None:
 
 
 def run_training(
-		moves_and_positions: MovesAndPositions, output_folder: str, epochs=500, learning_rate=0.001,
-		momentum=0.9, num_workers=4):
-	logging.info("Starting training")
-
+		moves_and_positions: MovesAndPositions, output_folder: str,
+		epochs=500, learning_rate=0.001, momentum=0.9, num_workers=4, batch_size=4096):
 	best_loss = 10000000
 
-	training_loader = get_data_loader(moves_and_positions, num_workers=num_workers)
+	training_loader = get_data_loader(moves_and_positions, batch_size=batch_size, num_workers=num_workers)
 	logging.info("Got data-loader")
 
 	model = Model()
