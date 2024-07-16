@@ -16,12 +16,10 @@ def get_device() -> torch.device:
 
 
 def get_data_loader(moves_and_positions: MovesAndPositions, batch_size, num_workers=4) -> DataLoader:
-	# transfer all data to GPU if available
-	device = get_device()
 	all_positions = np.array(moves_and_positions.positions)
 	all_moves = np.array(moves_and_positions.moves)
-	positions = torch.from_numpy(np.asarray(all_positions)).to(device)
-	moves = torch.from_numpy(np.asarray(all_moves)).to(device)
+	positions = torch.from_numpy(np.asarray(all_positions))
+	moves = torch.from_numpy(np.asarray(all_moves))
 
 	training_set = TensorDataset(positions, moves)
 
@@ -31,21 +29,17 @@ def get_data_loader(moves_and_positions: MovesAndPositions, batch_size, num_work
 
 def train_one_epoch(
 		model: torch.nn.Module, optimizer: torch.optim.SGD, loss_fn: torch.nn.CrossEntropyLoss,
-		training_loader: DataLoader) -> float:
+		training_loader: DataLoader, device: torch.device) -> float:
 	running_loss = 0.
 	last_loss = 0.
 
 	i = 0
-	# for i, data in enumerate(training_loader):
 	for batch_data, batch_labels in training_loader:
 		start_time = time.time()
 
 		# Transfer batch data to GPU
-		batch_data = batch_data.cuda(non_blocking=True)
-		batch_labels = batch_labels.cuda(non_blocking=True)
-
-		# Every data instance is an input + label pair
-		# inputs, labels = data
+		batch_data = batch_data.to(device, non_blocking=True)
+		batch_labels = batch_labels.to(device, non_blocking=True)
 
 		# Make predictions for this batch
 		outputs = model(batch_data)
@@ -109,19 +103,24 @@ def run_training(
 
 		# Make sure gradient tracking is on, and do a pass over the data
 		model.train(True)
-		last_loss = train_one_epoch(model, optimizer, loss_fn, training_loader)
+		last_loss = train_one_epoch(model, optimizer, loss_fn, training_loader, device)
 
 		running_vloss = 0.0
 		model.eval()
 
 		with torch.no_grad():
-			for i, vdata in enumerate(training_loader):
-				vinputs, vlabels = vdata
-				voutputs = model(vinputs)
-				vloss = loss_fn(voutputs, vlabels)
+			i = 0
+			for batch_data, batch_labels in training_loader:
+				# for i, vdata in enumerate(training_loader):
+				# vinputs, vlabels = batch_data
+				batch_data = batch_data.to(device, non_blocking=True)
+				batch_labels = batch_labels.to(device, non_blocking=True)
+				voutputs = model(batch_data)
+				vloss = loss_fn(voutputs, batch_labels)
 				running_vloss += vloss
+				i += 1
 
-		avg_vloss = running_vloss / (i + 1)
+		avg_vloss = running_vloss / i
 
 		if avg_vloss < best_vloss:
 			best_vloss = avg_vloss
@@ -133,6 +132,6 @@ def run_training(
 				best_loss = best_vloss
 
 		epoch_time = time.time() - epoch_start_time
-		logging.info(f"Epoch {epoch_number}: Time taken: {epoch_time:.2f}s, Last loss: {last_loss:.4f}")
+		logging.info(f"Epoch {epoch_number}: Time taken: {epoch_time:.2f}s, Average loss: {avg_vloss:.4f}")
 
 	logging.info(f"\n\nBEST VALIDATION LOSS FOR ALL MODELS: {best_loss}")
